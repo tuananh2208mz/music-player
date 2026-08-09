@@ -1,0 +1,18 @@
+{
+  "name": "Local Music Player",
+  "short_name": "Music Player",
+  "description": "Ứng dụng nghe nhạc offline với giao diện Glassmorphism",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a1a",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "assets/default-cover.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

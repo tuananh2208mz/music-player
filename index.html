@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="Local Music Player - Nghe nhạc offline">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Music Player">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+    <title>Local Music Player</title>
+    <style>
+        /* CSS sẽ được embed ở đây hoặc load từ file */
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Main Screen - Song List -->
+        <div id="main-screen" class="screen active">
+            <div class="header">
+                <h1>Thư viện nhạc</h1>
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Tìm kiếm bài hát..." autocomplete="off">
+                    <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+                <button id="upload-btn" class="upload-button" aria-label="Tải lên nhạc">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+                    </svg>
+                </button>
+                <input type="file" id="file-input" accept="audio/*" multiple style="display: none;">
+            </div>
+            
+            <div id="song-list" class="song-list">
+                <div class="empty-state" id="empty-state">
+                    <svg viewBox="0 0 24 24" width="64" height="64">
+                        <path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                    <p>Chưa có bài hát nào</p>
+                    <p class="sub">Nhấn nút tải lên để thêm nhạc</p>
+                </div>
+            </div>
+            
+            <!-- Mini Player Bar -->
+            <div id="mini-player" class="mini-player hidden">
+                <div class="mini-player-info" id="mini-player-info">
+                    <img id="mini-cover" src="data:image/svg+xml,..." alt="Cover">
+                    <div class="mini-text">
+                        <div class="mini-title" id="mini-title">Bài hát</div>
+                        <div class="mini-artist" id="mini-artist">Nghệ sĩ</div>
+                    </div>
+                </div>
+                <div class="mini-controls">
+                    <button id="mini-prev" class="control-btn">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor" d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
+                        </svg>
+                    </button>
+                    <button id="mini-play" class="control-btn play-btn">
+                        <svg viewBox="0 0 24 24" width="32" height="32" id="mini-play-icon">
+                            <path fill="currentColor" d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                    <button id="mini-next" class="control-btn">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Player Screen (Bottom Sheet) -->
+        <div id="player-screen" class="bottom-sheet">
+            <div class="sheet-overlay"></div>
+            <div class="sheet-content">
+                <div class="sheet-handle"></div>
+                <div class="player-content">
+                    <div class="player-header">
+                        <button id="player-close" class="close-btn">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                        <h2>Đang phát</h2>
+                        <button id="player-settings" class="settings-btn">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="player-artwork">
+                        <img id="player-cover" src="" alt="Album Art" class="album-art">
+                        <div id="equalizer" class="equalizer">
+                            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                            <span class="bar"></span><span class="bar"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="player-info">
+                        <h3 id="player-title">Tên bài hát</h3>
+                        <p id="player-artist">Nghệ sĩ</p>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <span id="current-time" class="time">00:00</span>
+                        <input type="range" id="progress-bar" class="progress-bar" min="0" max="100" value="0">
+                        <span id="duration" class="time">00:00</span>
+                    </div>
+                    
+                    <div class="player-controls">
+                        <button id="prev-btn" class="control-btn">
+                            <svg viewBox="0 0 24 24" width="28" height="28">
+                                <path fill="currentColor" d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
+                            </svg>
+                        </button>
+                        <button id="play-btn" class="control-btn play-btn-large">
+                            <svg viewBox="0 0 24 24" width="48" height="48" id="play-icon">
+                                <path fill="currentColor" d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                        <button id="next-btn" class="control-btn">
+                            <svg viewBox="0 0 24 24" width="28" height="28">
+                                <path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="volume-container">
+                        <button id="volume-icon" class="volume-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                            </svg>
+                        </button>
+                        <input type="range" id="volume-bar" class="volume-bar" min="0" max="100" value="70">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="bottom-sheet">
+            <div class="sheet-overlay"></div>
+            <div class="sheet-content">
+                <div class="sheet-handle"></div>
+                <div class="settings-content">
+                    <div class="settings-header">
+                        <button id="settings-back" class="back-btn">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                            </svg>
+                        </button>
+                        <h2>Cài đặt bài hát</h2>
+                    </div>
+                    
+                    <div class="settings-item">
+                        <div class="settings-row">
+                            <img id="settings-cover" src="" alt="Cover" class="settings-cover">
+                            <span>Ảnh bìa</span>
+                            <button id="change-cover-btn" class="wrench-btn">
+                                <svg viewBox="0 0 24 24" width="20" height="20">
+                                    <path fill="currentColor" d="M22.7,19l-9.1-9.1c0.9-2.3,0.4-5-1.5-6.9c-2-2-5-2.4-7.4-1.3L9,6L6,9L1.6,4.7C0.4,7.1,0.9,10.1,2.9,12.1 c1.9,1.9,4.6,2.4,6.9,1.5l9.1,9.1c0.4,0.4,1,0.4,1.4,0l2.3-2.3C23.1,20,23.1,19.4,22.7,19z"/>
+                                </svg>
+                            </button>
+                            <input type="file" id="cover-input" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-item">
+                        <div class="settings-row">
+                            <div class="settings-label">
+                                <span>Tên bài hát</span>
+                                <input type="text" id="settings-title" class="settings-input" value="">
+                            </div>
+                            <button id="change-title-btn" class="wrench-btn">
+                                <svg viewBox="0 0 24 24" width="20" height="20">
+                                    <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c0.39-0.39 0.39-1.02 0-1.41l-2.34-2.34c-0.39-0.39-1.02-0.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-item">
+                        <button id="delete-song-btn" class="delete-btn">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                            Xoá bài hát
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirmation Dialog -->
+        <div id="confirm-dialog" class="dialog-overlay hidden">
+            <div class="dialog">
+                <p id="confirm-message">Bạn có chắc chắn muốn xoá bài hát này?</p>
+                <div class="dialog-buttons">
+                    <button id="confirm-yes" class="btn-yes">Xoá</button>
+                    <button id="confirm-no" class="btn-no">Huỷ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jschardet@3.0.0/dist/jschardet.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/iconv-lite@0.6.3/lib/browser.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.5/dist/jsmediatags.min.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/metadata.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

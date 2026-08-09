@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Nền xám đậm bo góc matching giao diện Dark Mode -->
+  <rect width="512" height="512" rx="64" fill="#1e1e38"/>
+  
+  <!-- Icon nốt nhạc màu xám sáng ở chính giữa -->
+  <path fill="#6c63ff" opacity="0.8" d="M370.7 106.7H234.7v200.2c-12-7.2-26.1-11.6-41.3-11.6-47.1 0-85.3 38.2-85.3 85.3s38.2 85.3 85.3 85.3 85.3-38.2 85.3-85.3V213.3h92c11.8 0 21.3-9.5 21.3-21.3v-64c0-11.8-9.5-21.3-21.3-21.3z"/>
+</svg>
