@@ -51,18 +51,19 @@ const AudioPlayer = {
         this.currentIndex = index;
         const song = this.playlist[this.currentIndex];
 
-        // Quan trọng: Giải phóng bộ nhớ của Blob URL cũ để tránh rò rỉ RAM (Memory Leak)
         if (this.currentBlobUrl) {
             URL.revokeObjectURL(this.currentBlobUrl);
         }
 
-        // Tạo đường dẫn ảo (Blob URL) từ File gốc trong IndexedDB
         this.currentBlobUrl = URL.createObjectURL(song.file);
         this.audio.src = this.currentBlobUrl;
         
         this.audio.load();
         
-        // Báo cho giao diện biết đã chuyển bài
+        // ===== THÊM DÒNG NÀY VÀO ĐÂY =====
+        this.updateMediaSession(song);
+
+        // Báo cho giao diện biết đã chuyển bài[span_2](start_span)[span_2](end_span)
         if (this.onSongChange) {
             this.onSongChange(song, this.currentIndex);
         }
@@ -155,4 +156,52 @@ const AudioPlayer = {
         }
         return null;
     }
+    updateMediaSession(song) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song.name || 'Tên bài hát', // Hoặc song.title tùy vào cấu trúc dữ liệu bài hát của bạn
+                artist: song.artist || 'Nghệ sĩ',
+                album: 'Local Music Player',
+                artwork: [
+                    { src: 'assets/default-cover.svg', sizes: '512x512', type: 'image/svg+xml' }
+                ]
+            });
+
+            // Liên kết các nút điều khiển màn hình khóa với các hàm có sẵn trong AudioPlayer
+            navigator.mediaSession.setActionHandler('play', () => this.play());
+            navigator.mediaSession.setActionHandler('pause', () => this.pause());
+            navigator.mediaSession.setActionHandler('previoustrack', () => this.prev());
+            navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
+        }
+    },
 };
+// Cấu hình Media Session để phát nhạc dưới nền và hiển thị trên màn hình khóa
+function updateMediaSession(song) {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title || 'Tên bài hát',
+            artist: song.artist || 'Nghệ sĩ',
+            album: 'Local Music Player',
+            artwork: [
+                { src: song.cover || 'assets/default-cover.svg', sizes: '512x512', type: 'image/svg+xml' }
+            ]
+        });
+
+        // Liên kết nút bấm màn hình khóa với hàm có sẵn trong app của bạn
+        navigator.mediaSession.setActionHandler('play', function() {
+            // Gọi hàm play của bạn ở đây (ví dụ: playAudio())
+        });
+
+        navigator.mediaSession.setActionHandler('pause', function() {
+            // Gọi hàm pause của bạn ở đây (ví dụ: pauseAudio())
+        });
+
+        navigator.mediaSession.setActionHandler('previoustrack', function() {
+            // Gọi hàm chuyển bài trước của bạn ở đây (ví dụ: prevSong())
+        });
+
+        navigator.mediaSession.setActionHandler('nexttrack', function() {
+            // Gọi hàm chuyển bài tiếp theo của bạn ở đây (ví dụ: nextSong())
+        });
+    }
+}
